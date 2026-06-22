@@ -6,10 +6,7 @@ type CreateUserDto = z.infer<typeof registerSchema>;
 
 export class UserRepository {
     async findByEmail(email : string) {
-        return UserModel.findOne({email : email.toLowerCase(),   
-        })
-        .select("+password")
-        .exec();
+        return UserModel.findOne({email : email.toLowerCase()}).exec();
     }
 
     async findById(id: string) {
@@ -22,6 +19,38 @@ export class UserRepository {
 
     async save(user : any) {
         return user.save();
+    }
+
+    async findByEmailWithPassword(email : string) {
+        return UserModel.findOne({email : email.toLowerCase()})
+            .select("+password")
+            .exec();
+    }
+
+    async addRefreshToken(userId : string, token : string) {
+        return UserModel.findByIdAndUpdate(userId, 
+            { $push : {refreshTokens : token}},
+            { new : true}
+        ).exec()
+    }
+
+    async removeRefreshToken(userId : string, token : string) {
+        return UserModel.findByIdAndUpdate(userId, 
+            { $pull : {refreshTokens : token}},
+            { new : true}
+        ).exec()
+    }
+
+    async replaceRefreshToken(userId : string, oldToken : string, newToken : string) {
+        return UserModel.findByIdAndUpdate(userId,
+            {
+                $pull : {refreshTokens : oldToken},
+                $push : {refreshTokens : newToken}
+            }, 
+            {
+                new : true
+            } 
+        ).exec()
     }
 }
 

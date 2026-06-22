@@ -6,7 +6,10 @@ type CreateUserDto = z.infer<typeof registerSchema>;
 
 export class UserRepository {
     async findByEmail(email : string) {
-        return UserModel.findOne({email}).exec();
+        return UserModel.findOne({email : email.toLowerCase(),   
+        })
+        .select("+password")
+        .exec();
     }
 
     async findById(id: string) {

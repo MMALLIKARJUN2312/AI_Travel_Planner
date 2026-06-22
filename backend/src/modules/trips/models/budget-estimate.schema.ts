@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const budgetEstimate = new mongoose.Schema({
+export const budgetEstimateSchema = new mongoose.Schema({
     flights : Number,
     accommodation : Number,
     food : Number,

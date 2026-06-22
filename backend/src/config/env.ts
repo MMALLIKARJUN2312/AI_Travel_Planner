@@ -9,8 +9,14 @@ const envSchema = z.object({
         "test",
         "production"
     ]),
-    PORT : z.coerce.number(),
-    MONGODB_URI : z.string()
+    PORT : z.coerce.number().default(5000),
+    MONGODB_URI : z.string(),
+    
+    JWT_ACCESS_SECRET : z.string().min(32),
+    JWT_REFRESH_SECRET : z.string().min(32),
+
+    ACCESS_TOKEN_EXPIRES_IN : z.string(),
+    REFRESH_TOKEN_EXPIRES_IN : z.string(),
 })
 
 export const env = envSchema.parse(process.env);

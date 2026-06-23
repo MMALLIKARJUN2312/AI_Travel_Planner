@@ -46,16 +46,30 @@ export class UserRepository {
         ).exec();
     }
 
-    async replaceRefreshToken(userId: string, oldToken: string, newToken: string) {
-        return UserModel.findByIdAndUpdate(
-            userId,
-            {
-                $pull: { refreshTokens: { token: oldToken } },
-                $push: { refreshTokens: { token: newToken } }
-            },
-            { new: true }
-        ).exec();
+    async replaceRefreshToken(
+        userId: string,
+        oldRefreshToken: string,
+        newRefreshToken: string
+    ) {
+    const user = await UserModel.findById(userId);
+
+    if (!user) {
+        throw new Error("User not found");
     }
+
+    const updatedTokens = user.refreshTokens.toObject().filter(
+        (t: any) => t.token !== oldRefreshToken
+    );
+
+    updatedTokens.push({
+        token: newRefreshToken
+    });
+
+    user.refreshTokens = updatedTokens as any;
+
+    await user.save();
+    return user;
+}
 }
 
 export const userRepository = new UserRepository();

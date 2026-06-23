@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../../../config/env.js';
 import { TokenPayload } from '../types/token-payload.interface.js';
+import { AppError } from '../../../core/errors/app-error.js';
 
 export class JwtService {
     generateAccessToken(payload : TokenPayload): string {
@@ -16,11 +17,19 @@ export class JwtService {
         })
     }
 
-    verifyAccessToken(token : string): TokenPayload {
-        return jwt.verify(token, env.JWT_ACCESS_SECRET) as TokenPayload;
+    verifyAccessToken(token: string): TokenPayload {
+        try {
+            return jwt.verify(token, env.JWT_ACCESS_SECRET) as TokenPayload;
+        } catch (err) {
+            throw new AppError("Invalid access token", 401);
+        }
     }
 
-    verifyRefreshToken(token : string): TokenPayload {
-        return jwt.verify(token, env.JWT_REFRESH_SECRET) as TokenPayload;
+    verifyRefreshToken(token: string): TokenPayload {
+        try {
+            return jwt.verify(token, env.JWT_REFRESH_SECRET) as TokenPayload;
+        } catch (err) {
+            throw new AppError("Invalid session", 401);
+        }
     }
 }

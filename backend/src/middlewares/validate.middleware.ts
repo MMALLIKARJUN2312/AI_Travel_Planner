@@ -10,8 +10,9 @@ export const validate = (schema : ZodType) => (
     const result = schema.safeParse(req.body);
 
     if (!result.success) {
-        const errorMessages = result.error.issues.map((issue) => `
-            ${issue.path.join(".")} : ${issue.message}`).join(". ")
+        const errorMessages = result.error.issues
+        .map((issue) => `${issue.path.join(".")} : ${issue.message}`)
+        .join(". ")
 
         return next(new AppError(`Validation failed : ${errorMessages}`, 400))
     }

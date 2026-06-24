@@ -1,9 +1,9 @@
 import { TripModel } from "../models/trip.model.js";
-import { createTripDto } from "../schemas/create-trip.schema.js";
+import { CreateTripDto } from "../schemas/create-trip.schema.js";
 import { UpdateTripDto } from "../schemas/update-trip.schema.js";
 
 export class TripRepository {
-    async create(data : createTripDto & {userId : string}) {
+    async create(data : CreateTripDto & {userId : string}) {
         return TripModel.create(data);
     }
 

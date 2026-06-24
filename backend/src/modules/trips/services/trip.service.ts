@@ -1,7 +1,5 @@
 import { AppError } from "../../../core/errors/app-error.js";
-
 import { TripRepository } from "../repositories/trip.repository.js";
-
 import { CreateTripDto } from "../schemas/create-trip.schema.js";
 import { UpdateTripDto } from "../schemas/update-trip.schema.js";
 

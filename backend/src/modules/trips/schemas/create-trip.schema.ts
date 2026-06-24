@@ -24,4 +24,4 @@ export const createTripSchema = z.object({
         .max(20)
 })
 
-export type createTripDto = z.infer<typeof createTripSchema>
+export type CreateTripDto = z.infer<typeof createTripSchema>

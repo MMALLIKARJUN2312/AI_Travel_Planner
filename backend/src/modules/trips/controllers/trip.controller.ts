@@ -66,6 +66,9 @@ export class TripController {
 
     await this.tripService.deleteTrip(tripId, req.user.userId);
 
-    res.status(204).send();
+    res.status(200).json({
+      success: true,
+      message: "Trip deleted successfully"
+    });
     };
 }

@@ -19,7 +19,7 @@ app.use(express.json());
 
 app.use('/health', healthRoute);
 app.use('/api/auth', authRoutes);
-app.use('/api/trips/', tripRoutes);
+app.use('/api/trips', tripRoutes);
 
 app.use(notFoundMiddleware);
 

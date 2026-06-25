@@ -11,7 +11,7 @@ export const createTripSchema = z.object({
         .number()
         .int()
         .min(1)
-        .max(50),
+        .max(30),
     budgetType : z.enum(
         Object.values(BudgetType) as [
             string,

@@ -1,6 +1,11 @@
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 import { TripService } from "../services/trip.service.js";
 import { AppError } from "../../../core/errors/app-error.js";
+
+type TripParams = {
+  id: string;
+};
 
 export class TripController {
   constructor(
@@ -13,7 +18,7 @@ export class TripController {
     res.status(201).json({
       success: true,
       message: "Trip created",
-      data: trip
+      data: trip,
     });
   };
 
@@ -22,53 +27,59 @@ export class TripController {
 
     res.status(200).json({
       success: true,
-      data: trips
+      data: trips,
     });
   };
 
-  getTrip = async (req: Request, res: Response) => {
+  getTrip = async (req: Request<TripParams>, res: Response) => {
     const tripId = req.params.id;
 
-    if (!tripId || Array.isArray(tripId)) {
-        throw new AppError("Invalid trip id", 400);
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
     }
 
     const trip = await this.tripService.getTrip(tripId, req.user.userId);
 
     res.status(200).json({
-        success: true,
-        data: trip
+      success: true,
+      data: trip,
     });
-    };
+  };
 
-  updateTrip = async (req: Request, res: Response) => {
+  updateTrip = async (req: Request<TripParams>, res: Response) => {
     const tripId = req.params.id;
 
-    if (!tripId || Array.isArray(tripId)) {
-        throw new AppError("Invalid trip id", 400);
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
     }
 
     const trip = await this.tripService.updateTrip(tripId, req.user.userId, req.body);
 
     res.status(200).json({
-        success: true,
-        message: "Trip updated",
-        data: trip
+      success: true,
+      message: "Trip updated",
+      data: trip,
     });
-};
+  };
 
-  deleteTrip = async (req: Request, res: Response) => {
+  deleteTrip = async (
+    req: Request<TripParams>,
+    res: Response
+  ) => {
     const tripId = req.params.id;
 
-    if (!tripId || Array.isArray(tripId)) {
-        throw new AppError("Invalid trip id", 400);
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
     }
 
-    await this.tripService.deleteTrip(tripId, req.user.userId);
+    await this.tripService.deleteTrip(
+      tripId,
+      req.user.userId
+    );
 
     res.status(200).json({
       success: true,
-      message: "Trip deleted successfully"
+      message: "Trip deleted successfully",
     });
-    };
+  };
 }

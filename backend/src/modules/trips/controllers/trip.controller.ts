@@ -7,6 +7,11 @@ type TripParams = {
   id: string;
 };
 
+type DayActivitiesParams = {
+  id: string;
+  dayNumber: string;
+};
+
 export class TripController {
   constructor(
     private readonly tripService: TripService
@@ -80,6 +85,60 @@ export class TripController {
     res.status(200).json({
       success: true,
       message: "Trip deleted successfully",
+    });
+  };
+
+  regenerateDay = async (req: Request<TripParams>, res: Response) => {
+    const tripId = req.params.id;
+
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
+    }
+
+    const trip = await this.tripService.regenerateDay(tripId, req.user.userId, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Day regenerated",
+      data: trip,
+    });
+  };
+
+  updateActivities = async (req: Request<DayActivitiesParams>, res: Response) => {
+    const tripId = req.params.id;
+
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
+    }
+
+    const dayNumber = Number(req.params.dayNumber);
+
+    if (!Number.isInteger(dayNumber) || dayNumber < 1) {
+      throw new AppError("Invalid day number", 400);
+    }
+
+    const trip = await this.tripService.updateActivities(tripId, req.user.userId, dayNumber, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Itinerary updated",
+      data: trip,
+    });
+  };
+
+  refreshHotels = async (req: Request<TripParams>, res: Response) => {
+    const tripId = req.params.id;
+
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
+    }
+
+    const trip = await this.tripService.refreshHotels(tripId, req.user.userId);
+
+    res.status(200).json({
+      success: true,
+      message: "Hotel suggestions refreshed",
+      data: trip,
     });
   };
 }

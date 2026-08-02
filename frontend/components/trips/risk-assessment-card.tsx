@@ -1,17 +1,19 @@
-import { ShieldCheck, ShieldAlert, ShieldX } from "lucide-react";
+"use client";
+
+import { useState } from "react";
+import { ArrowLeftRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { SwapActivityDialog } from "@/components/trips/swap-activity-dialog";
 import { cn } from "@/lib/utils";
-import { RiskAssessment, RiskLevel } from "@/types/trip.types";
+import { RISK_CONFIG } from "@/lib/risk";
+import { Trip } from "@/types/trip.types";
 
-const RISK_CONFIG: Record<RiskLevel, { label: string; icon: typeof ShieldCheck; color: string }> = {
-  LOW: { label: "Low risk", icon: ShieldCheck, color: "#0ca30c" },
-  MEDIUM: { label: "Medium risk", icon: ShieldAlert, color: "#fab219" },
-  HIGH: { label: "High risk", icon: ShieldX, color: "#d03b3b" },
-};
-
-export function RiskAssessmentCard({ risk }: { risk: RiskAssessment }) {
+export function RiskAssessmentCard({ trip }: { trip: Trip }) {
+  const { riskAssessment: risk, itinerary } = trip;
   const config = RISK_CONFIG[risk.riskLevel];
   const Icon = config.icon;
+  const [activeSuggestion, setActiveSuggestion] = useState<string | null>(null);
 
   return (
     <Card>
@@ -55,14 +57,36 @@ export function RiskAssessmentCard({ risk }: { risk: RiskAssessment }) {
         {risk.alternativeActivities.length > 0 && (
           <div>
             <p className="mb-1.5 text-sm font-medium">Backup activities</p>
-            <ul className="flex flex-col gap-1 text-sm text-muted-foreground">
+            <ul className="flex flex-col gap-2">
               {risk.alternativeActivities.map((activity) => (
-                <li key={activity}>• {activity}</li>
+                <li key={activity} className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span>• {activity}</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="shrink-0"
+                    onClick={() => setActiveSuggestion(activity)}
+                  >
+                    <ArrowLeftRight className="size-3.5" />
+                    Swap in
+                  </Button>
+                </li>
               ))}
             </ul>
           </div>
         )}
       </CardContent>
+
+      <SwapActivityDialog
+        key={activeSuggestion}
+        tripId={trip._id}
+        itinerary={itinerary}
+        suggestion={activeSuggestion}
+        open={activeSuggestion !== null}
+        onOpenChange={(open) => {
+          if (!open) setActiveSuggestion(null);
+        }}
+      />
     </Card>
   );
 }

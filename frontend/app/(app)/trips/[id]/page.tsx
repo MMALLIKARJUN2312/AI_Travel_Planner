@@ -79,11 +79,15 @@ export default function TripDetailPage() {
         </div>
       </div>
 
-      <ItineraryTimeline tripId={trip._id} days={trip.itinerary} />
+      <ItineraryTimeline
+        tripId={trip._id}
+        days={trip.itinerary}
+        riskLevel={trip.riskAssessment.riskLevel}
+      />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <BudgetBreakdown budget={trip.budgetEstimate} />
-        <RiskAssessmentCard risk={trip.riskAssessment} />
+        <RiskAssessmentCard trip={trip} />
       </div>
 
       <HotelCards hotels={trip.hotelSuggestions} />

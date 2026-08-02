@@ -13,11 +13,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AddActivityDialog } from "@/components/trips/add-activity-dialog";
 import { RegenerateDialog } from "@/components/trips/regenerate-dialog";
+import { RiskBadge } from "@/components/trips/risk-badge";
 import { SortableActivityList } from "@/components/trips/sortable-activity-list";
 import { useRegenerateDay } from "@/hooks/use-trip-edit";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { ItineraryDay } from "@/types/trip.types";
+import { ItineraryDay, RiskLevel } from "@/types/trip.types";
 
 const SLOTS = [
   { key: "morning", label: "Morning", icon: Sunrise },
@@ -81,11 +82,22 @@ function DayContent({ tripId, day }: { tripId: string; day: ItineraryDay }) {
   );
 }
 
-export function ItineraryTimeline({ tripId, days }: { tripId: string; days: ItineraryDay[] }) {
+export function ItineraryTimeline({
+  tripId,
+  days,
+  riskLevel,
+}: {
+  tripId: string;
+  days: ItineraryDay[];
+  riskLevel: RiskLevel;
+}) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Day-by-day itinerary</CardTitle>
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle>Day-by-day itinerary</CardTitle>
+          <RiskBadge level={riskLevel} />
+        </div>
       </CardHeader>
       <CardContent>
         <Accordion multiple defaultValue={days.length ? [`day-${days[0].dayNumber}`] : []}>

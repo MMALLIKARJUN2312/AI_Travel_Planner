@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { DeleteTripDialog } from "@/components/trips/delete-trip-dialog";
+import { RiskBadge } from "@/components/trips/risk-badge";
 import { useDuplicateTrip } from "@/hooks/use-trips";
 import { cn } from "@/lib/utils";
 import { Trip } from "@/types/trip.types";
@@ -35,6 +36,7 @@ export function TripCard({ trip }: { trip: Trip }) {
             {trip.numberOfDays} days
           </span>
           <Badge variant="outline">{BUDGET_TYPE_LABEL[trip.budgetType] ?? trip.budgetType}</Badge>
+          {trip.riskAssessment && <RiskBadge level={trip.riskAssessment.riskLevel} />}
         </div>
 
         <div className="flex flex-wrap gap-1.5">

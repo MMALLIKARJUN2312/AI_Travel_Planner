@@ -7,9 +7,15 @@ type TripParams = {
   id: string;
 };
 
-type DayActivitiesParams = {
+type DayParams = {
   id: string;
   dayNumber: string;
+};
+
+type ActivityParams = {
+  id: string;
+  dayNumber: string;
+  activityId: string;
 };
 
 export class TripController {
@@ -104,7 +110,7 @@ export class TripController {
     });
   };
 
-  updateActivities = async (req: Request<DayActivitiesParams>, res: Response) => {
+  updateActivities = async (req: Request<DayParams>, res: Response) => {
     const tripId = req.params.id;
 
     if (!Types.ObjectId.isValid(tripId)) {
@@ -122,6 +128,56 @@ export class TripController {
     res.status(200).json({
       success: true,
       message: "Itinerary updated",
+      data: trip,
+    });
+  };
+
+  regenerateActivity = async (req: Request<ActivityParams>, res: Response) => {
+    const tripId = req.params.id;
+
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
+    }
+
+    const dayNumber = Number(req.params.dayNumber);
+
+    if (!Number.isInteger(dayNumber) || dayNumber < 1) {
+      throw new AppError("Invalid day number", 400);
+    }
+
+    const trip = await this.tripService.regenerateActivity(
+      tripId,
+      req.user.userId,
+      dayNumber,
+      req.params.activityId,
+      req.body
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Activity regenerated",
+      data: trip,
+    });
+  };
+
+  restoreDay = async (req: Request<DayParams>, res: Response) => {
+    const tripId = req.params.id;
+
+    if (!Types.ObjectId.isValid(tripId)) {
+      throw new AppError("Invalid trip id", 400);
+    }
+
+    const dayNumber = Number(req.params.dayNumber);
+
+    if (!Number.isInteger(dayNumber) || dayNumber < 1) {
+      throw new AppError("Invalid day number", 400);
+    }
+
+    const trip = await this.tripService.restoreDay(tripId, req.user.userId, dayNumber, req.body);
+
+    res.status(200).json({
+      success: true,
+      message: "Day restored",
       data: trip,
     });
   };

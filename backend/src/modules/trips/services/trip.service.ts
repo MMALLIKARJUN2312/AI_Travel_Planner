@@ -3,7 +3,9 @@ import { ItineraryAiService } from "../../ai/services/itinerary-ai.service.js";
 import { TripRepository } from "../repositories/trip.repository.js";
 import { ActivityEditDto } from "../schemas/activity-edit.schema.js";
 import { CreateTripDto } from "../schemas/create-trip.schema.js";
+import { RegenerateActivityDto } from "../schemas/regenerate-activity.schema.js";
 import { RegenerateDayDto } from "../schemas/regenerate-day.schema.js";
+import { RestoreDayDto } from "../schemas/restore-day.schema.js";
 import { UpdateTripDto } from "../schemas/update-trip.schema.js";
 
 export class TripService {
@@ -106,7 +108,7 @@ export class TripService {
 
     if (data.action === "add") {
       day[data.slot].push(data.activity);
-    } else {
+    } else if (data.action === "remove") {
       const activity = day[data.slot].id(data.activityId);
 
       if (!activity) {
@@ -114,6 +116,17 @@ export class TripService {
       }
 
       activity.deleteOne();
+    } else {
+      const currentSlot = day[data.slot];
+      const reordered = data.activityIds
+        .map((id: string) => currentSlot.id(id))
+        .filter((activity: any) => activity !== null);
+
+      if (reordered.length !== currentSlot.length) {
+        throw new AppError("activityIds must include every activity in this slot exactly once", 400);
+      }
+
+      Object.assign(day, { [data.slot]: reordered });
     }
 
     const allActivities = [...day.morning, ...day.afternoon, ...day.evening];
@@ -121,6 +134,74 @@ export class TripService {
       (sum: number, activity: any) => sum + (activity.estimatedCost || 0),
       0
     );
+
+    await trip.save();
+
+    return trip;
+  }
+
+  async regenerateActivity(
+    tripId: string,
+    userId: string,
+    dayNumber: number,
+    activityId: string,
+    data: RegenerateActivityDto
+  ) {
+    const trip = await this.tripRepository.findByIdAndUserId(tripId, userId);
+
+    if (!trip) {
+      throw new AppError("Trip not found", 404);
+    }
+
+    const day = trip.itinerary.find((d: any) => d.dayNumber === dayNumber);
+
+    if (!day) {
+      throw new AppError(`Day ${dayNumber} does not exist on this trip`, 400);
+    }
+
+    const activity = day[data.slot].id(activityId);
+
+    if (!activity) {
+      throw new AppError("Activity not found", 404);
+    }
+
+    const regeneratedActivity = await this.itineraryAiService.regenerateActivity({
+      destination: trip.destination,
+      budgetType: trip.budgetType,
+      interests: trip.interests,
+      dayNumber,
+      slot: data.slot,
+      currentActivityTitle: activity.title ?? undefined,
+      instruction: data.instruction,
+    });
+
+    Object.assign(activity, regeneratedActivity);
+
+    const allActivities = [...day.morning, ...day.afternoon, ...day.evening];
+    day.estimatedCost = allActivities.reduce(
+      (sum: number, a: any) => sum + (a.estimatedCost || 0),
+      0
+    );
+
+    await trip.save();
+
+    return trip;
+  }
+
+  async restoreDay(tripId: string, userId: string, dayNumber: number, data: RestoreDayDto) {
+    const trip = await this.tripRepository.findByIdAndUserId(tripId, userId);
+
+    if (!trip) {
+      throw new AppError("Trip not found", 404);
+    }
+
+    const day = trip.itinerary.find((d: any) => d.dayNumber === dayNumber);
+
+    if (!day) {
+      throw new AppError(`Day ${dayNumber} does not exist on this trip`, 400);
+    }
+
+    Object.assign(day, data);
 
     await trip.save();
 

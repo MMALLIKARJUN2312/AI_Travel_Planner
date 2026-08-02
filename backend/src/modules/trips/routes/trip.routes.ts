@@ -7,6 +7,8 @@ import { validate } from "../../../middlewares/validate.middleware.js";
 import { createTripSchema } from "../schemas/create-trip.schema.js";
 import { updateTripSchema } from "../schemas/update-trip.schema.js";
 import { regenerateDaySchema } from "../schemas/regenerate-day.schema.js";
+import { regenerateActivitySchema } from "../schemas/regenerate-activity.schema.js";
+import { restoreDaySchema } from "../schemas/restore-day.schema.js";
 import { activityEditSchema } from "../schemas/activity-edit.schema.js";
 import { asyncHandler } from "../../../core/errors/async-handler.js";
 import { ItineraryAiService } from "../../ai/services/itinerary-ai.service.js";
@@ -36,6 +38,18 @@ router.patch(
   authMiddleware,
   validate(activityEditSchema),
   asyncHandler(tripController.updateActivities)
+);
+router.post(
+  "/:id/itinerary/:dayNumber/activities/:activityId/regenerate",
+  authMiddleware,
+  validate(regenerateActivitySchema),
+  asyncHandler(tripController.regenerateActivity)
+);
+router.put(
+  "/:id/itinerary/:dayNumber",
+  authMiddleware,
+  validate(restoreDaySchema),
+  asyncHandler(tripController.restoreDay)
 );
 router.post(
   "/:id/hotels/refresh",

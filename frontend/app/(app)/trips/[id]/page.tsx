@@ -79,7 +79,7 @@ export default function TripDetailPage() {
         </div>
       </div>
 
-      <ItineraryTimeline days={trip.itinerary} />
+      <ItineraryTimeline tripId={trip._id} days={trip.itinerary} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <BudgetBreakdown budget={trip.budgetEstimate} />

@@ -1,5 +1,6 @@
 export type BudgetType = "BUDGET" | "MID_RANGE" | "LUXURY";
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH";
+export type ItinerarySlot = "morning" | "afternoon" | "evening";
 
 export interface Activity {
   _id: string;
@@ -64,4 +65,30 @@ export interface CreateTripInput {
   numberOfDays: number;
   budgetType: BudgetType;
   interests: string[];
+}
+
+export interface RegenerateDayInput {
+  dayNumber: number;
+  instruction?: string;
+}
+
+export interface RegenerateActivityInput {
+  dayNumber: number;
+  activityId: string;
+  slot: ItinerarySlot;
+  instruction?: string;
+}
+
+export type ActivityEditInput =
+  | { action: "add"; slot: ItinerarySlot; activity: Omit<Activity, "_id"> }
+  | { action: "remove"; slot: ItinerarySlot; activityId: string }
+  | { action: "reorder"; slot: ItinerarySlot; activityIds: string[] };
+
+export interface RestoreDayInput {
+  title: string;
+  morning: Omit<Activity, "_id">[];
+  afternoon: Omit<Activity, "_id">[];
+  evening: Omit<Activity, "_id">[];
+  tips: string[];
+  estimatedCost: number;
 }

@@ -1,0 +1,32 @@
+services:
+  - type: web
+    name: ai-travel-planner-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Paste your MongoDB Atlas connection string in the Render dashboard —
+      # not synced from this file since it contains credentials.
+      - key: MONGODB_URI
+        sync: false
+      # Render generates secure random values for these on first deploy.
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_REFRESH_SECRET
+        generateValue: true
+      - key: ACCESS_TOKEN_EXPIRES_IN
+        value: 15m
+      - key: REFRESH_TOKEN_EXPIRES_IN
+        value: 7d
+      # Paste your Gemini API key in the Render dashboard — not synced from
+      # this file. Leave unset to run on the deterministic mock AI provider.
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_MODEL
+        value: gemini-flash-latest

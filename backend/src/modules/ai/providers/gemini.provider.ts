@@ -3,6 +3,8 @@ import { AppError } from "../../../core/errors/app-error.js";
 import { logger } from "../../../core/logger/logger.js";
 import { AiProvider } from "./ai-provider.interface.js";
 
+const REQUEST_TIMEOUT_MS = 45_000;
+
 export class GeminiProvider implements AiProvider {
   private readonly client: GoogleGenAI;
 
@@ -10,7 +12,10 @@ export class GeminiProvider implements AiProvider {
     apiKey: string,
     private readonly model: string
   ) {
-    this.client = new GoogleGenAI({ apiKey });
+    this.client = new GoogleGenAI({
+      apiKey,
+      httpOptions: { timeout: REQUEST_TIMEOUT_MS },
+    });
   }
 
   async generateContent(prompt: string): Promise<string> {

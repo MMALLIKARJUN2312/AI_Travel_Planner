@@ -16,7 +16,7 @@ export class TripRepository {
     }
 
     async updateByIdAndUserId(tripId : string, userId : string, data : UpdateTripDto) {
-        return TripModel.findOneAndUpdate({_id : tripId, userId}, data, {new : true})
+        return TripModel.findOneAndUpdate({_id : tripId, userId}, data, {returnDocument: "after"})
     }
 
     async deleteByIdAndUserId(tripId : string, userId : string) {

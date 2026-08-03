@@ -34,7 +34,7 @@ export class UserRepository {
         return UserModel.findByIdAndUpdate(
             userId,
             { $push: { refreshTokens: { token } } }, 
-            { new: true }
+            { returnDocument: "after" }
         ).exec();
     }
 
@@ -42,7 +42,7 @@ export class UserRepository {
         return UserModel.findByIdAndUpdate(
             userId,
             { $pull: { refreshTokens: { token: token } } },
-            { new: true }
+            { returnDocument: "after" }
         ).exec();
     }
 

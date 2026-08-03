@@ -1,4 +1,17 @@
 services:
+  mongo:
+    image: mongo:8
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -6,4 +19,27 @@ services:
       - "5000:5000"
     env_file:
       - ./backend/.env
+    environment:
+      # Overrides whatever is in backend/.env so the containerized backend
+      # always talks to the local `mongo` service, not your Atlas cluster.
+      MONGODB_URI: mongodb://mongo:27017/ai-travel-planner
+    depends_on:
+      mongo:
+        condition: service_healthy
     restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Next.js reads BACKEND_URL at build time (baked into the server
+        # bundle), so it must be passed as a build arg, not a runtime env var.
+        BACKEND_URL: http://backend:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mongo-data:

@@ -1,0 +1,358 @@
+{
+  "info": {
+    "name": "AI Travel Planner API",
+    "description": "Run Auth > Register once (it uses a fixed demo email — reruns will 400 on duplicate, which just means the account already exists; use Login instead from then on). Both Register and Login capture {{accessToken}} automatically. Run Trips > Create Trip next to capture {{tripId}} and {{activityId}}; the rest of the Trips folder is ordered so each request's variables are still valid when it runs — don't reorder them.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000", "type": "string" },
+    { "key": "accessToken", "value": "", "type": "string" },
+    { "key": "tripId", "value": "", "type": "string" },
+    { "key": "activityId", "value": "", "type": "string" },
+    { "key": "secondActivityId", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ada Lovelace\",\n  \"email\": \"ada@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ada@example.com\",\n  \"password\": \"Password123!\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "users", "me"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Trips",
+      "item": [
+        {
+          "name": "Create Trip",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.collectionVariables.set('tripId', json.data._id);",
+                  "  const day = json.data.itinerary[0];",
+                  "  const activity = (day.morning[0] || day.afternoon[0] || day.evening[0]);",
+                  "  if (activity) pm.collectionVariables.set('activityId', activity._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"destination\": \"Tokyo, Japan\",\n  \"numberOfDays\": 3,\n  \"budgetType\": \"MID_RANGE\",\n  \"interests\": [\"Food\", \"Culture\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips"]
+            }
+          }
+        },
+        {
+          "name": "List Trips",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips"]
+            }
+          }
+        },
+        {
+          "name": "Get Trip",
+          "request": {
+            "method": "GET",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}"]
+            }
+          }
+        },
+        {
+          "name": "Update Trip",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"interests\": [\"Food\", \"Culture\", \"Nature\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}"]
+            }
+          }
+        },
+        {
+          "name": "Add Activity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  const day = json.data.itinerary.find((d) => d.dayNumber === 1);",
+                  "  const last = day.morning[day.morning.length - 1];",
+                  "  pm.collectionVariables.set('secondActivityId', last._id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"add\",\n  \"slot\": \"morning\",\n  \"activity\": {\n    \"title\": \"Coffee at a local cafe\",\n    \"description\": \"Quick coffee stop before the day starts\",\n    \"duration\": \"30 minutes\",\n    \"estimatedCost\": 5\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/itinerary/1/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "itinerary", "1", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Reorder Activities",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"reorder\",\n  \"slot\": \"morning\",\n  \"activityIds\": [\"{{secondActivityId}}\", \"{{activityId}}\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/itinerary/1/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "itinerary", "1", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Regenerate Activity",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slot\": \"morning\",\n  \"instruction\": \"something more relaxing\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/itinerary/1/activities/{{activityId}}/regenerate",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "itinerary", "1", "activities", "{{activityId}}", "regenerate"]
+            }
+          }
+        },
+        {
+          "name": "Remove Activity",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"remove\",\n  \"slot\": \"morning\",\n  \"activityId\": \"{{activityId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/itinerary/1/activities",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "itinerary", "1", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Regenerate Day",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dayNumber\": 1,\n  \"instruction\": \"more outdoor activities\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/regenerate-day",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "regenerate-day"]
+            }
+          }
+        },
+        {
+          "name": "Restore Day",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Restored Day\",\n  \"morning\": [{ \"title\": \"Sample activity\", \"description\": \"Restored via API\", \"duration\": \"2 hours\", \"estimatedCost\": 10 }],\n  \"afternoon\": [],\n  \"evening\": [],\n  \"tips\": [],\n  \"estimatedCost\": 10\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/itinerary/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "itinerary", "1"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Hotels",
+          "request": {
+            "method": "POST",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}/hotels/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}", "hotels", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "Delete Trip",
+          "request": {
+            "method": "DELETE",
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+            "url": {
+              "raw": "{{baseUrl}}/api/trips/{{tripId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "trips", "{{tripId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

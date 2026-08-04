@@ -18,8 +18,8 @@ import {
 import { useRegister } from "@/hooks/use-auth";
 import { registerSchema, RegisterFormValues } from "@/lib/validations/auth";
 
-export function RegisterForm() {
-  const registerUser = useRegister();
+export function RegisterForm({ redirectTo }: { redirectTo?: string } = {}) {
+  const registerUser = useRegister(redirectTo);
   const {
     register,
     handleSubmit,

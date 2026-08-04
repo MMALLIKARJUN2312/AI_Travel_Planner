@@ -56,7 +56,7 @@ export function useLogin() {
   });
 }
 
-export function useRegister() {
+export function useRegister(redirectTo: string = "/dashboard") {
   const router = useRouter();
   const setAuth = useAuthStore((s) => s.setAuth);
   const queryClient = useQueryClient();
@@ -67,7 +67,7 @@ export function useRegister() {
       setAuth(data.accessToken);
       await queryClient.invalidateQueries({ queryKey: ["me"] });
       toast.success("Account created — welcome to AI Travel Planner!");
-      router.push("/dashboard");
+      router.push(redirectTo);
     },
     onError: (error) => {
       toast.error(getApiErrorMessage(error, "Could not create your account."));

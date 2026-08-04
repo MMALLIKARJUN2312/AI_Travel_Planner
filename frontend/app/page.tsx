@@ -1,24 +1,35 @@
-import { Sparkles, Wallet, ShieldAlert } from "lucide-react";
+import { CircleDollarSign, MapPinned, ShieldAlert, Sparkles, Wallet } from "lucide-react";
 import { Navbar } from "@/components/marketing/navbar";
-import { HeroCta } from "@/components/marketing/hero-cta";
+import { Hero } from "@/components/marketing/hero";
+import { DestinationGallery } from "@/components/marketing/destination-gallery";
+import { Footer } from "@/components/marketing/footer";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-const features = [
+const steps = [
   {
     icon: Sparkles,
-    title: "AI-generated itineraries",
-    description: "Tell us your destination, days, budget, and interests — get a full day-by-day plan in seconds.",
+    title: "Tell us your trip",
+    description:
+      "Where you're leaving from, where you're headed, how many days, your budget level, your currency, and what you're into.",
+  },
+  {
+    icon: MapPinned,
+    title: "AI builds your itinerary",
+    description:
+      "A full day-by-day plan with a budget breakdown, hotel picks, and an AI risk & safety assessment — in seconds.",
   },
   {
     icon: Wallet,
-    title: "Real budget estimates",
-    description: "Flights, hotels, food, and activities broken down, with hotel picks matched to your budget.",
+    title: "Edit, regenerate, go",
+    description:
+      "Swap activities, regenerate a day, reorder your schedule, and refresh hotel picks — fully editable, with undo.",
   },
-  {
-    icon: ShieldAlert,
-    title: "AI Risk & Safety Advisor",
-    description: "Every trip gets a safety/weather risk score with mitigation tips and backup activity ideas.",
-  },
+];
+
+const trustPoints = [
+  { icon: CircleDollarSign, text: "Budget breakdowns in 15 currencies" },
+  { icon: ShieldAlert, text: "AI risk & safety advisor on every trip" },
+  { icon: Sparkles, text: "Fully editable, day by day" },
 ];
 
 export default function Home() {
@@ -27,41 +38,44 @@ export default function Home() {
       <Navbar />
 
       <main className="flex flex-1 flex-col">
-        <section className="relative overflow-hidden px-4 py-24 sm:px-6">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute -top-32 left-1/2 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-primary/15 blur-3xl"
-          />
-          <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
-            <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-              Plan your next trip with an AI travel agent
-            </h1>
-            <p className="max-w-xl text-lg text-muted-foreground text-balance">
-              Give us your destination, dates, and interests. Get a complete itinerary, budget
-              breakdown, and hotel picks — editable and regenerable, day by day.
-            </p>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <HeroCta />
-            </div>
-          </div>
-        </section>
+        <Hero />
 
-        <section className="px-4 pb-24 sm:px-6">
-          <div className="mx-auto grid max-w-5xl gap-4 sm:grid-cols-3">
-            {features.map((feature) => (
-              <Card key={feature.title}>
-                <CardHeader>
-                  <span className="mb-2 flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-                    <feature.icon className="size-4" />
-                  </span>
-                  <CardTitle>{feature.title}</CardTitle>
-                  <CardDescription>{feature.description}</CardDescription>
-                </CardHeader>
-              </Card>
+        <section className="border-b border-border/60 bg-muted/40 px-4 py-4 sm:px-6">
+          <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-2 text-sm text-muted-foreground">
+            {trustPoints.map((point) => (
+              <span key={point.text} className="flex items-center gap-2">
+                <point.icon className="size-4 text-primary" />
+                {point.text}
+              </span>
             ))}
           </div>
         </section>
+
+        <DestinationGallery />
+
+        <section className="px-4 pb-24 sm:px-6">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="mb-8 max-w-2xl text-2xl font-semibold tracking-tight sm:text-3xl">
+              How it works
+            </h2>
+            <div className="grid gap-4 sm:grid-cols-3">
+              {steps.map((step) => (
+                <Card key={step.title}>
+                  <CardHeader>
+                    <span className="mb-2 flex size-9 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                      <step.icon className="size-4" />
+                    </span>
+                    <CardTitle>{step.title}</CardTitle>
+                    <CardDescription>{step.description}</CardDescription>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
       </main>
+
+      <Footer />
     </div>
   );
 }

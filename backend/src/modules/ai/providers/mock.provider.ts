@@ -14,6 +14,32 @@ const BUDGET_MULTIPLIERS: Record<string, BudgetMultiplier> = {
   LUXURY: { flights: 150, accommodation: 180, food: 60, transportation: 30, activities: 55 },
 };
 
+// Rough, static approximations of currency scale relative to USD — good enough to make
+// mock/dev/test output look plausible per currency. Not real FX rates, never used in prod
+// (the real Gemini provider prices amounts directly per the prompt instructions).
+const CURRENCY_SCALE: Record<string, number> = {
+  USD: 1,
+  EUR: 0.92,
+  GBP: 0.79,
+  JPY: 149,
+  CAD: 1.36,
+  AUD: 1.52,
+  NZD: 1.66,
+  CHF: 0.88,
+  INR: 83,
+  SGD: 1.34,
+  HKD: 7.8,
+  KRW: 1330,
+  THB: 35,
+  IDR: 15800,
+  AED: 3.67,
+};
+
+const scale = (value: number, currency: string): number => {
+  const factor = CURRENCY_SCALE[currency] ?? 1;
+  return Math.round(value * factor);
+};
+
 const SLOT_HOURS: Record<string, string> = {
   morning: "2-3 hours",
   afternoon: "3-4 hours",
@@ -25,11 +51,11 @@ const extract = (prompt: string, label: string): string => {
   return match?.[1]?.trim() ?? "";
 };
 
-const buildActivity = (destination: string, slot: string, index: number) => ({
+const buildActivity = (destination: string, slot: string, index: number, currency: string) => ({
   title: `${slot === "morning" ? "Explore" : slot === "afternoon" ? "Visit" : "Enjoy"} ${destination} spot #${index + 1}`,
   description: `A recommended ${slot} experience in ${destination}, tailored to your interests.`,
   duration: SLOT_HOURS[slot] ?? "2 hours",
-  estimatedCost: 15 + index * 5,
+  estimatedCost: scale(15 + index * 5, currency),
 });
 
 const buildHotels = (destination: string) => [
@@ -38,14 +64,14 @@ const buildHotels = (destination: string) => [
   { name: `${destination} Grand Resort`, rating: 4.8, priceRange: "$$$", description: "Premium amenities with excellent guest ratings." },
 ];
 
-const buildDay = (destination: string, dayNumber: number) => ({
+const buildDay = (destination: string, dayNumber: number, currency: string) => ({
   dayNumber,
   title: `Day ${dayNumber} in ${destination}`,
-  morning: [buildActivity(destination, "morning", 0)],
-  afternoon: [buildActivity(destination, "afternoon", 0)],
-  evening: [buildActivity(destination, "evening", 0)],
+  morning: [buildActivity(destination, "morning", 0, currency)],
+  afternoon: [buildActivity(destination, "afternoon", 0, currency)],
+  evening: [buildActivity(destination, "evening", 0, currency)],
   tips: [`Carry water and comfortable shoes for day ${dayNumber}.`],
-  estimatedCost: 80,
+  estimatedCost: scale(80, currency),
 });
 
 export class MockProvider implements AiProvider {
@@ -53,15 +79,16 @@ export class MockProvider implements AiProvider {
     const mode = extract(prompt, "MODE");
     const destination = extract(prompt, "DESTINATION") || "your destination";
     const budgetType = extract(prompt, "BUDGET_TYPE") || "MID_RANGE";
+    const currency = extract(prompt, "CURRENCY") || "USD";
 
     if (mode === "REGENERATE_DAY") {
       const dayNumber = Number(extract(prompt, "DAY_NUMBER")) || 1;
-      return JSON.stringify(buildDay(destination, dayNumber));
+      return JSON.stringify(buildDay(destination, dayNumber, currency));
     }
 
     if (mode === "REGENERATE_ACTIVITY") {
       const slot = extract(prompt, "SLOT") || "morning";
-      return JSON.stringify(buildActivity(destination, slot, 0));
+      return JSON.stringify(buildActivity(destination, slot, 0, currency));
     }
 
     if (mode === "HOTELS") {
@@ -71,13 +98,13 @@ export class MockProvider implements AiProvider {
     const numberOfDays = Number(extract(prompt, "NUMBER_OF_DAYS")) || 3;
     const multiplier = BUDGET_MULTIPLIERS[budgetType] ?? BUDGET_MULTIPLIERS.MID_RANGE;
 
-    const itinerary = Array.from({ length: numberOfDays }, (_, i) => buildDay(destination, i + 1));
+    const itinerary = Array.from({ length: numberOfDays }, (_, i) => buildDay(destination, i + 1, currency));
 
-    const accommodation = multiplier.accommodation * numberOfDays;
-    const food = multiplier.food * numberOfDays;
-    const transportation = multiplier.transportation * numberOfDays;
-    const activities = multiplier.activities * numberOfDays;
-    const flights = multiplier.flights;
+    const accommodation = scale(multiplier.accommodation * numberOfDays, currency);
+    const food = scale(multiplier.food * numberOfDays, currency);
+    const transportation = scale(multiplier.transportation * numberOfDays, currency);
+    const activities = scale(multiplier.activities * numberOfDays, currency);
+    const flights = scale(multiplier.flights, currency);
     const total = flights + accommodation + food + transportation + activities;
 
     return JSON.stringify({

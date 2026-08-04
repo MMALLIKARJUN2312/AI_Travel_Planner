@@ -4,8 +4,10 @@ import { registerTestUser } from "../helpers/register-test-user.js";
 
 const validTripInput = {
   destination: "Lisbon, Portugal",
+  originCity: "New York, USA",
   numberOfDays: 3,
   budgetType: "MID_RANGE",
+  currency: "USD",
   interests: ["Food", "Culture"],
 };
 

@@ -1,16 +1,18 @@
 import { GenerateFullTripInput } from "../types/ai-input.types.js";
 
 export const buildItineraryPrompt = (input: GenerateFullTripInput): string => {
-  const { destination, numberOfDays, budgetType, interests } = input;
+  const { destination, originCity, numberOfDays, budgetType, currency, interests } = input;
 
   return `
 MODE: FULL_TRIP
 DESTINATION: ${destination}
+ORIGIN_CITY: ${originCity}
 NUMBER_OF_DAYS: ${numberOfDays}
 BUDGET_TYPE: ${budgetType}
+CURRENCY: ${currency}
 INTERESTS: ${interests.join(", ")}
 
-You are an expert travel planner AI. Design a complete ${numberOfDays}-day trip to ${destination} for a traveler interested in ${interests.join(", ")}, targeting a ${budgetType} budget level.
+You are an expert travel planner AI. Design a complete ${numberOfDays}-day trip to ${destination} for a traveler departing from ${originCity}, interested in ${interests.join(", ")}, targeting a ${budgetType} budget level.
 
 Also assess realistic travel-safety risk (weather, seasonal hazards, common traveler safety concerns) for this destination and provide mitigation guidance.
 
@@ -51,7 +53,8 @@ Respond with ONLY raw JSON. No markdown, no code fences, no explanations before 
 Rules:
 - "itinerary" must contain exactly ${numberOfDays} entries with "dayNumber" from 1 to ${numberOfDays}, in order.
 - Each day must include at least one activity in each of morning/afternoon/evening.
-- All monetary values are numbers in USD, no currency symbols or strings.
+- All monetary values are numbers in ${currency}, no currency symbols or strings. Price them realistically for ${currency}'s actual numeric scale in that country/region (e.g. Japanese Yen, Indonesian Rupiah, and Korean Won amounts are nominally much larger than US Dollar amounts for the same real value) — do not just take a USD estimate and relabel it.
+- "budgetEstimate.flights" must reflect a realistic round-trip cost for the specific route from ${originCity} to ${destination}, not a generic average.
 - "confidenceLevel" is a number between 0 and 1.
 - "hotelSuggestions" must contain exactly 3 hotels spanning budget, mid-range, and luxury options.
 - "riskScore" is a number between 0 and 100 reflecting realistic risk for ${destination}; "riskLevel" must be consistent with the score (LOW < 34, MEDIUM 34-66, HIGH > 66).

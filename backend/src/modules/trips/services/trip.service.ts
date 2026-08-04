@@ -74,8 +74,10 @@ export class TripService {
 
     const regeneratedDay = await this.itineraryAiService.regenerateDay({
       destination: trip.destination,
+      originCity: trip.originCity,
       numberOfDays: trip.numberOfDays,
       budgetType: trip.budgetType,
+      currency: trip.currency,
       interests: trip.interests,
       dayNumber: data.dayNumber,
       instruction: data.instruction,
@@ -168,6 +170,7 @@ export class TripService {
     const regeneratedActivity = await this.itineraryAiService.regenerateActivity({
       destination: trip.destination,
       budgetType: trip.budgetType,
+      currency: trip.currency,
       interests: trip.interests,
       dayNumber,
       slot: data.slot,
@@ -218,6 +221,7 @@ export class TripService {
     const hotels = await this.itineraryAiService.regenerateHotels({
       destination: trip.destination,
       budgetType: trip.budgetType,
+      currency: trip.currency,
     });
 
     Object.assign(trip, { hotelSuggestions: hotels });

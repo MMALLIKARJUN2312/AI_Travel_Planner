@@ -1,13 +1,19 @@
 import {z} from "zod";
 import { BudgetType } from "../types/budget-type.enum.js";
+import { Currency } from "../types/currency.enum.js";
 
 export const createTripSchema = z.object({
     destination : z
-        .string() 
+        .string()
         .trim()
         .min(2)
         .max(100),
-    numberOfDays : z 
+    originCity : z
+        .string()
+        .trim()
+        .min(2)
+        .max(100),
+    numberOfDays : z
         .number()
         .int()
         .min(1)
@@ -18,8 +24,14 @@ export const createTripSchema = z.object({
             ...string[]
         ]
     ),
+    currency : z.enum(
+        Object.values(Currency) as [
+            string,
+            ...string[]
+        ]
+    ),
     interests : z
-        .array(z.string().trim())
+        .array(z.string().trim().min(1).max(40))
         .min(1)
         .max(20)
 })

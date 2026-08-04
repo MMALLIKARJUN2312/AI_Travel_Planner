@@ -13,6 +13,7 @@ const validActivityJson = JSON.stringify({
 const baseInput: RegenerateActivityInput = {
   destination: "Lisbon",
   budgetType: "MID_RANGE",
+  currency: "USD",
   interests: ["Nature"],
   dayNumber: 1,
   slot: "evening",

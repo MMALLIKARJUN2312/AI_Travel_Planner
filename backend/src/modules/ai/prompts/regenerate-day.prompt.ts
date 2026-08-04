@@ -1,13 +1,15 @@
 import { RegenerateDayInput } from "../types/ai-input.types.js";
 
 export const buildRegenerateDayPrompt = (input: RegenerateDayInput): string => {
-  const { destination, dayNumber, budgetType, interests, instruction } = input;
+  const { destination, originCity, dayNumber, budgetType, currency, interests, instruction } = input;
 
   return `
 MODE: REGENERATE_DAY
 DESTINATION: ${destination}
+ORIGIN_CITY: ${originCity}
 DAY_NUMBER: ${dayNumber}
 BUDGET_TYPE: ${budgetType}
+CURRENCY: ${currency}
 INTERESTS: ${interests.join(", ")}
 INSTRUCTION: ${instruction ?? "Provide a fresh alternative plan for this day."}
 
@@ -28,7 +30,7 @@ Respond with ONLY raw JSON for a SINGLE itinerary day. No markdown, no code fenc
 Rules:
 - "dayNumber" must be exactly ${dayNumber}.
 - Include at least one activity in each of morning/afternoon/evening.
-- All monetary values are numbers in USD, no currency symbols or strings.
+- All monetary values are numbers in ${currency}, no currency symbols or strings, priced realistically for that currency's actual numeric scale.
 - Never wrap the JSON in markdown code fences or add any text outside the JSON object.
 `.trim();
 };

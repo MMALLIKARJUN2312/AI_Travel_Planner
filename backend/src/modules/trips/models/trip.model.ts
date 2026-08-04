@@ -17,12 +17,22 @@ export const tripSchema = new mongoose.Schema({
         required : true,
         trim : true
     },
+    originCity : {
+        type : String,
+        required : true,
+        trim : true
+    },
     numberOfDays : {
         type : Number,
         required : true,
         min : 1
     },
     budgetType : {
+        type : String,
+        required : true,
+        trim : true
+    },
+    currency : {
         type : String,
         required : true,
         trim : true

@@ -2,7 +2,7 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Copy } from "lucide-react";
+import { Copy, PlaneTakeoff } from "lucide-react";
 import { useDuplicateTrip, useTrip } from "@/hooks/use-trips";
 import { ItineraryTimeline } from "@/components/trips/itinerary-timeline";
 import { BudgetBreakdown } from "@/components/trips/budget-breakdown";
@@ -12,6 +12,7 @@ import { DeleteTripDialog } from "@/components/trips/delete-trip-dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatCurrency } from "@/lib/format";
 
 const BUDGET_TYPE_LABEL: Record<string, string> = {
   BUDGET: "Budget-friendly",
@@ -47,46 +48,59 @@ export default function TripDetailPage() {
       transition={{ duration: 0.3 }}
       className="flex flex-col gap-6"
     >
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">{trip.destination}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-            <span>{trip.numberOfDays} days</span>
-            <span>·</span>
-            <Badge variant="outline">{BUDGET_TYPE_LABEL[trip.budgetType] ?? trip.budgetType}</Badge>
-            {trip.interests.map((interest) => (
-              <Badge key={interest} variant="secondary">
-                {interest}
-              </Badge>
-            ))}
+      <div className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 via-accent/40 to-secondary/10 px-6 py-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            {trip.originCity && (
+              <p className="mb-1 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <PlaneTakeoff className="size-3.5" />
+                {trip.originCity} → {trip.destination}
+              </p>
+            )}
+            <h1 className="text-2xl font-semibold tracking-tight">{trip.destination}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+              <span>{trip.numberOfDays} days</span>
+              <span>·</span>
+              <Badge variant="outline">{BUDGET_TYPE_LABEL[trip.budgetType] ?? trip.budgetType}</Badge>
+              {trip.budgetEstimate && (
+                <Badge variant="outline" className="tabular-nums">
+                  {formatCurrency(trip.budgetEstimate.total, trip.currency)}
+                </Badge>
+              )}
+              {trip.interests.map((interest) => (
+                <Badge key={interest} variant="secondary">
+                  {interest}
+                </Badge>
+              ))}
+            </div>
+          </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={duplicateTrip.isPending}
+                onClick={() => duplicateTrip.mutate(trip)}
+              >
+                <Copy className="size-4" />
+                Duplicate
+              </Button>
+              <DeleteTripDialog
+                tripId={trip._id}
+                destination={trip.destination}
+                onDeleted={() => router.push("/trips")}
+              />
+            </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={duplicateTrip.isPending}
-            onClick={() => duplicateTrip.mutate(trip)}
-          >
-            <Copy className="size-4" />
-            Duplicate
-          </Button>
-          <DeleteTripDialog
-            tripId={trip._id}
-            destination={trip.destination}
-            onDeleted={() => router.push("/trips")}
-          />
-        </div>
-      </div>
-
       <ItineraryTimeline
         tripId={trip._id}
         days={trip.itinerary}
         riskLevel={trip.riskAssessment.riskLevel}
+        currency={trip.currency}
       />
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <BudgetBreakdown budget={trip.budgetEstimate} />
+        <BudgetBreakdown budget={trip.budgetEstimate} currency={trip.currency} />
         <RiskAssessmentCard trip={trip} />
       </div>
 

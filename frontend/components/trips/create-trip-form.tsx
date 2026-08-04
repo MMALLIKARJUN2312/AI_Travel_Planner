@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2, Sparkles } from "lucide-react";
+import { Loader2, Plus, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,7 +18,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { budgetTypeOptions, CreateTripFormValues, createTripSchema, interestOptions } from "@/lib/validations/trip";
+import {
+  budgetTypeOptions,
+  CreateTripFormValues,
+  createTripSchema,
+  currencyOptions,
+  interestOptions,
+} from "@/lib/validations/trip";
 import { useCreateTrip } from "@/hooks/use-trips";
 
 const LOADING_MESSAGES = [
@@ -30,15 +37,32 @@ const LOADING_MESSAGES = [
 
 export function CreateTripForm() {
   const createTrip = useCreateTrip();
+  const searchParams = useSearchParams();
+  const [customInterest, setCustomInterest] = useState("");
   const {
     register,
     control,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CreateTripFormValues>({
     resolver: zodResolver(createTripSchema),
-    defaultValues: { destination: "", numberOfDays: 5, budgetType: "MID_RANGE", interests: [] },
+    defaultValues: {
+      destination: "",
+      originCity: "",
+      numberOfDays: 5,
+      budgetType: "MID_RANGE",
+      currency: "USD",
+      interests: [],
+    },
   });
+
+  useEffect(() => {
+    const destination = searchParams.get("destination");
+    const interests = searchParams.get("interests");
+    if (destination) setValue("destination", destination);
+    if (interests) setValue("interests", interests.split(",").filter(Boolean));
+  }, [searchParams, setValue]);
 
   if (createTrip.isPending) {
     return <GeneratingState />;
@@ -64,7 +88,20 @@ export function CreateTripForm() {
             className="flex flex-col gap-6"
           >
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="originCity">Leaving from</Label>
+                <Input
+                  id="originCity"
+                  placeholder="New York, USA"
+                  aria-invalid={Boolean(errors.originCity)}
+                  {...register("originCity")}
+                />
+                {errors.originCity && (
+                  <p className="text-xs text-destructive">{errors.originCity.message}</p>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-1.5">
                 <Label htmlFor="destination">Destination</Label>
                 <Input
                   id="destination"
@@ -76,7 +113,9 @@ export function CreateTripForm() {
                   <p className="text-xs text-destructive">{errors.destination.message}</p>
                 )}
               </div>
+            </div>
 
+            <div className="grid gap-4 sm:grid-cols-3">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="numberOfDays">Number of days</Label>
                 <Input
@@ -121,6 +160,36 @@ export function CreateTripForm() {
                   <p className="text-xs text-destructive">{errors.budgetType.message}</p>
                 )}
               </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="currency">Currency</Label>
+                <Controller
+                  control={control}
+                  name="currency"
+                  render={({ field }) => (
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <SelectTrigger id="currency" className="w-full" aria-invalid={Boolean(errors.currency)}>
+                        <SelectValue placeholder="Choose a currency">
+                          {(value: string | null) => {
+                            const option = currencyOptions.find((o) => o.value === value);
+                            return option ? `${option.flag} ${option.value}` : "Choose a currency";
+                          }}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {currencyOptions.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.flag} {option.value} — {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
+                {errors.currency && (
+                  <p className="text-xs text-destructive">{errors.currency.message}</p>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col gap-1.5">
@@ -128,35 +197,91 @@ export function CreateTripForm() {
               <Controller
                 control={control}
                 name="interests"
-                render={({ field }) => (
-                  <div className="flex flex-wrap gap-2" role="group" aria-label="Interests">
-                    {interestOptions.map((interest) => {
-                      const selected = field.value?.includes(interest);
-                      return (
-                        <button
-                          key={interest}
-                          type="button"
-                          aria-pressed={selected}
-                          onClick={() =>
-                            field.onChange(
-                              selected
-                                ? field.value.filter((v: string) => v !== interest)
-                                : [...(field.value ?? []), interest]
-                            )
-                          }
-                          className={cn(
-                            "rounded-full border px-3 py-1 text-sm transition-colors",
-                            selected
-                              ? "border-primary bg-primary text-primary-foreground"
-                              : "border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
-                          )}
-                        >
-                          {interest}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+                render={({ field }) => {
+                  const custom = (field.value ?? []).filter(
+                    (v: string) => !(interestOptions as readonly string[]).includes(v)
+                  );
+                  const addCustomInterest = () => {
+                    const trimmed = customInterest.trim();
+                    if (!trimmed) return;
+                    const exists = (field.value ?? []).some(
+                      (v: string) => v.toLowerCase() === trimmed.toLowerCase()
+                    );
+                    if (!exists) {
+                      field.onChange([...(field.value ?? []), trimmed]);
+                    }
+                    setCustomInterest("");
+                  };
+
+                  return (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-wrap gap-2" role="group" aria-label="Interests">
+                        {interestOptions.map((interest) => {
+                          const selected = field.value?.includes(interest);
+                          return (
+                            <button
+                              key={interest}
+                              type="button"
+                              aria-pressed={selected}
+                              onClick={() =>
+                                field.onChange(
+                                  selected
+                                    ? field.value.filter((v: string) => v !== interest)
+                                    : [...(field.value ?? []), interest]
+                                )
+                              }
+                              className={cn(
+                                "rounded-full border px-3 py-1 text-sm transition-colors",
+                                selected
+                                  ? "border-primary bg-primary text-primary-foreground"
+                                  : "border-input bg-transparent hover:bg-accent hover:text-accent-foreground"
+                              )}
+                            >
+                              {interest}
+                            </button>
+                          );
+                        })}
+                        {custom.map((interest: string) => (
+                          <span
+                            key={interest}
+                            className="flex items-center gap-1 rounded-full border border-primary bg-primary px-3 py-1 text-sm text-primary-foreground"
+                          >
+                            {interest}
+                            <button
+                              type="button"
+                              aria-label={`Remove ${interest}`}
+                              onClick={() =>
+                                field.onChange(field.value.filter((v: string) => v !== interest))
+                              }
+                              className="rounded-full hover:opacity-75"
+                            >
+                              <X className="size-3" />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Add your own, e.g. Tech & Innovation"
+                          value={customInterest}
+                          onChange={(e) => setCustomInterest(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              addCustomInterest();
+                            }
+                          }}
+                          className="max-w-xs"
+                        />
+                        <Button type="button" variant="outline" size="sm" onClick={addCustomInterest}>
+                          <Plus className="size-4" />
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                }}
               />
               {errors.interests && (
                 <p className="text-xs text-destructive">{errors.interests.message}</p>

@@ -10,10 +10,8 @@ import { TripCard } from "@/components/trips/trip-card";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { buttonVariants } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
-
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
 
 export default function DashboardPage() {
   const { data: user, isLoading: userLoading } = useCurrentUser();
@@ -21,10 +19,20 @@ export default function DashboardPage() {
 
   const stats = useMemo(() => {
     const list = trips ?? [];
+    const budgetByCurrency = new Map<string, number>();
+    for (const trip of list) {
+      const currency = trip.currency || "USD";
+      budgetByCurrency.set(currency, (budgetByCurrency.get(currency) ?? 0) + (trip.budgetEstimate?.total ?? 0));
+    }
     return {
       count: list.length,
       destinations: new Set(list.map((trip) => trip.destination)).size,
-      totalBudget: list.reduce((sum, trip) => sum + (trip.budgetEstimate?.total ?? 0), 0),
+      totalBudgetLabel:
+        budgetByCurrency.size === 0
+          ? formatCurrency(0)
+          : Array.from(budgetByCurrency.entries())
+              .map(([currency, total]) => formatCurrency(total, currency))
+              .join(" · "),
     };
   }, [trips]);
 
@@ -32,7 +40,7 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="flex flex-wrap items-start justify-between gap-4 rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 via-accent/40 to-secondary/10 px-6 py-6">
         <div>
           {userLoading ? (
             <Skeleton className="h-8 w-64" />
@@ -55,7 +63,7 @@ export default function DashboardPage() {
         <StatCard
           icon={Wallet}
           label="Total estimated budget"
-          value={formatCurrency(stats.totalBudget)}
+          value={stats.totalBudgetLabel}
           loading={tripsLoading}
         />
       </div>

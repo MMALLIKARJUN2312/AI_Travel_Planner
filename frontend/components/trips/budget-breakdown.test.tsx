@@ -14,14 +14,14 @@ const budget: BudgetEstimate = {
 
 describe("BudgetBreakdown", () => {
   it("renders the total and confidence level", () => {
-    render(<BudgetBreakdown budget={budget} />);
+    render(<BudgetBreakdown budget={budget} currency="USD" />);
 
     expect(screen.getByText("$1,000")).toBeInTheDocument();
     expect(screen.getByText("85% confidence")).toBeInTheDocument();
   });
 
   it("renders each category with its amount and correct percentage share", () => {
-    render(<BudgetBreakdown budget={budget} />);
+    render(<BudgetBreakdown budget={budget} currency="USD" />);
 
     expect(screen.getByText("Flights")).toBeInTheDocument();
     expect(screen.getByText("$400 · 40%")).toBeInTheDocument();
@@ -41,7 +41,7 @@ describe("BudgetBreakdown", () => {
 
   it("omits the donut segment for a category with zero cost", () => {
     const budgetWithNoFlights: BudgetEstimate = { ...budget, flights: 0, total: 600 };
-    const { container } = render(<BudgetBreakdown budget={budgetWithNoFlights} />);
+    const { container } = render(<BudgetBreakdown budget={budgetWithNoFlights} currency="USD" />);
 
     const circles = container.querySelectorAll("circle");
     // one background track circle + one segment per non-zero category (4, since flights is 0)

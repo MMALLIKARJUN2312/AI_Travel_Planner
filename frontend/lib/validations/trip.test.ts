@@ -2,8 +2,10 @@ import { createTripSchema } from "./trip";
 
 const validInput = {
   destination: "Tokyo, Japan",
+  originCity: "San Francisco, USA",
   numberOfDays: 5,
   budgetType: "MID_RANGE",
+  currency: "USD",
   interests: ["Food", "Culture"],
 };
 

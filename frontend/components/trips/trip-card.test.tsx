@@ -15,8 +15,10 @@ const trip: Trip = {
   _id: "trip-1",
   userId: "user-1",
   destination: "Kyoto, Japan",
+  originCity: "Los Angeles, USA",
   numberOfDays: 4,
   budgetType: "LUXURY",
+  currency: "USD",
   interests: ["Food", "Culture", "Art", "Shopping"],
   itinerary: [],
   budgetEstimate: {

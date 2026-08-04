@@ -35,10 +35,12 @@ export function AddActivityDialog({
   tripId,
   dayNumber,
   slot,
+  currency,
 }: {
   tripId: string;
   dayNumber: number;
   slot: ItinerarySlot;
+  currency: string;
 }) {
   const [open, setOpen] = useState(false);
   const addActivity = useAddActivity(tripId);
@@ -112,7 +114,7 @@ export function AddActivityDialog({
               {errors.duration && <p className="text-xs text-destructive">{errors.duration.message}</p>}
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="activity-cost">Est. cost (USD)</Label>
+              <Label htmlFor="activity-cost">Est. cost ({currency})</Label>
               <Input
                 id="activity-cost"
                 type="number"

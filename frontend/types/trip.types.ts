@@ -49,8 +49,10 @@ export interface Trip {
   _id: string;
   userId: string;
   destination: string;
+  originCity: string;
   numberOfDays: number;
   budgetType: BudgetType;
+  currency: string;
   interests: string[];
   itinerary: ItineraryDay[];
   budgetEstimate: BudgetEstimate;
@@ -62,8 +64,10 @@ export interface Trip {
 
 export interface CreateTripInput {
   destination: string;
+  originCity: string;
   numberOfDays: number;
   budgetType: BudgetType;
+  currency: string;
   interests: string[];
 }
 

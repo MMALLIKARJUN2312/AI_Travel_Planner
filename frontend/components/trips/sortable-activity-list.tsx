@@ -21,11 +21,13 @@ export function SortableActivityList({
   dayNumber,
   slot,
   activities,
+  currency,
 }: {
   tripId: string;
   dayNumber: number;
   slot: ItinerarySlot;
   activities: Activity[];
+  currency: string;
 }) {
   const reorderActivities = useReorderActivities(tripId);
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
@@ -49,7 +51,13 @@ export function SortableActivityList({
       <div className="flex flex-col divide-y">
         {activities.map((activity) => (
           <div key={activity._id} className="flex items-start gap-2 py-2 pl-1">
-            <ActivityRowContent tripId={tripId} dayNumber={dayNumber} slot={slot} activity={activity} />
+            <ActivityRowContent
+              tripId={tripId}
+              dayNumber={dayNumber}
+              slot={slot}
+              activity={activity}
+              currency={currency}
+            />
           </div>
         ))}
       </div>
@@ -61,7 +69,14 @@ export function SortableActivityList({
       <SortableContext items={activities.map((activity) => activity._id)} strategy={verticalListSortingStrategy}>
         <div className="flex flex-col divide-y">
           {activities.map((activity) => (
-            <SortableActivityRow key={activity._id} tripId={tripId} dayNumber={dayNumber} slot={slot} activity={activity} />
+            <SortableActivityRow
+              key={activity._id}
+              tripId={tripId}
+              dayNumber={dayNumber}
+              slot={slot}
+              activity={activity}
+              currency={currency}
+            />
           ))}
         </div>
       </SortableContext>
@@ -74,11 +89,13 @@ function SortableActivityRow({
   dayNumber,
   slot,
   activity,
+  currency,
 }: {
   tripId: string;
   dayNumber: number;
   slot: ItinerarySlot;
   activity: Activity;
+  currency: string;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: activity._id,
@@ -104,7 +121,7 @@ function SortableActivityRow({
       >
         <GripVertical className="size-4" />
       </button>
-      <ActivityRowContent tripId={tripId} dayNumber={dayNumber} slot={slot} activity={activity} />
+      <ActivityRowContent tripId={tripId} dayNumber={dayNumber} slot={slot} activity={activity} currency={currency} />
     </div>
   );
 }

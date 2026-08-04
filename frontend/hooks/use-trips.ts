@@ -62,8 +62,10 @@ export function useDuplicateTrip() {
     mutationFn: (trip: Trip) =>
       tripService.createTrip({
         destination: trip.destination,
+        originCity: trip.originCity,
         numberOfDays: trip.numberOfDays,
         budgetType: trip.budgetType,
+        currency: trip.currency,
         interests: trip.interests,
       }),
     onSuccess: async (trip) => {

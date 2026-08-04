@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { BudgetEstimate } from "@/types/trip.types";
 
@@ -18,10 +19,7 @@ const STROKE = 26;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const GAP = 3;
 
-const formatCurrency = (value: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
-
-export function BudgetBreakdown({ budget }: { budget: BudgetEstimate }) {
+export function BudgetBreakdown({ budget, currency }: { budget: BudgetEstimate; currency: string }) {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
 
   const total = budget.total || 1;
@@ -81,7 +79,7 @@ export function BudgetBreakdown({ budget }: { budget: BudgetEstimate }) {
             )}
           </svg>
           <div className="absolute flex flex-col items-center">
-            <span className="text-2xl font-semibold tabular-nums">{formatCurrency(budget.total)}</span>
+            <span className="text-2xl font-semibold tabular-nums">{formatCurrency(budget.total, currency)}</span>
             <span className="text-xs text-muted-foreground">
               {Math.round(budget.confidenceLevel * 100)}% confidence
             </span>
@@ -109,7 +107,7 @@ export function BudgetBreakdown({ budget }: { budget: BudgetEstimate }) {
                   {segment.label}
                 </span>
                 <span className="tabular-nums text-muted-foreground">
-                  {formatCurrency(segment.value)} · {Math.round(segment.share * 100)}%
+                  {formatCurrency(segment.value, currency)} · {Math.round(segment.share * 100)}%
                 </span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">

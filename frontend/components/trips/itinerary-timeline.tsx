@@ -26,7 +26,7 @@ const SLOTS = [
   { key: "evening", label: "Evening", icon: Moon },
 ] as const satisfies ReadonlyArray<{ key: keyof Pick<ItineraryDay, "morning" | "afternoon" | "evening">; label: string; icon: typeof Sunrise }>;
 
-function DayContent({ tripId, day }: { tripId: string; day: ItineraryDay }) {
+function DayContent({ tripId, day, currency }: { tripId: string; day: ItineraryDay; currency: string }) {
   const [regenerateOpen, setRegenerateOpen] = useState(false);
   const regenerateDay = useRegenerateDay(tripId);
 
@@ -48,13 +48,14 @@ function DayContent({ tripId, day }: { tripId: string; day: ItineraryDay }) {
               <slot.icon className="size-3.5" />
               {slot.label}
             </p>
-            <AddActivityDialog tripId={tripId} dayNumber={day.dayNumber} slot={slot.key} />
+            <AddActivityDialog tripId={tripId} dayNumber={day.dayNumber} slot={slot.key} currency={currency} />
           </div>
           <SortableActivityList
             tripId={tripId}
             dayNumber={day.dayNumber}
             slot={slot.key}
             activities={day[slot.key]}
+            currency={currency}
           />
         </div>
       ))}
@@ -86,10 +87,12 @@ export function ItineraryTimeline({
   tripId,
   days,
   riskLevel,
+  currency,
 }: {
   tripId: string;
   days: ItineraryDay[];
   riskLevel: RiskLevel;
+  currency: string;
 }) {
   return (
     <Card>
@@ -110,12 +113,12 @@ export function ItineraryTimeline({
                     {day.title}
                   </span>
                   <Badge variant="secondary" className="tabular-nums">
-                    {formatCurrency(day.estimatedCost)}
+                    {formatCurrency(day.estimatedCost, currency)}
                   </Badge>
                 </div>
               </AccordionTrigger>
               <AccordionContent>
-                <DayContent tripId={tripId} day={day} />
+                <DayContent tripId={tripId} day={day} currency={currency} />
               </AccordionContent>
             </AccordionItem>
           ))}

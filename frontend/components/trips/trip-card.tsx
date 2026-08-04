@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, Copy } from "lucide-react";
+import { Calendar, Copy, PlaneTakeoff } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { DeleteTripDialog } from "@/components/trips/delete-trip-dialog";
 import { RiskBadge } from "@/components/trips/risk-badge";
 import { useDuplicateTrip } from "@/hooks/use-trips";
+import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { Trip } from "@/types/trip.types";
 
@@ -30,12 +31,24 @@ export function TripCard({ trip }: { trip: Trip }) {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex flex-1 flex-col gap-3">
+        {trip.originCity && (
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <PlaneTakeoff className="size-3.5 shrink-0" />
+            {trip.originCity} → {trip.destination}
+          </p>
+        )}
+
         <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
           <span className="flex items-center gap-1">
             <Calendar className="size-3.5" />
             {trip.numberOfDays} days
           </span>
           <Badge variant="outline">{BUDGET_TYPE_LABEL[trip.budgetType] ?? trip.budgetType}</Badge>
+          {trip.budgetEstimate && (
+            <Badge variant="outline" className="tabular-nums">
+              {formatCurrency(trip.budgetEstimate.total, trip.currency)}
+            </Badge>
+          )}
           {trip.riskAssessment && <RiskBadge level={trip.riskAssessment.riskLevel} />}
         </div>
 

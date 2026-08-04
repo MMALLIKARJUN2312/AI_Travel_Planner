@@ -19,11 +19,13 @@ export function ActivityRowContent({
   dayNumber,
   slot,
   activity,
+  currency,
 }: {
   tripId: string;
   dayNumber: number;
   slot: ItinerarySlot;
   activity: Activity;
+  currency: string;
 }) {
   const [regenerateOpen, setRegenerateOpen] = useState(false);
   const regenerateActivity = useRegenerateActivity(tripId);
@@ -45,7 +47,7 @@ export function ActivityRowContent({
 
       <div className="flex shrink-0 items-center gap-2">
         <span className="text-sm tabular-nums text-muted-foreground">
-          {formatCurrency(activity.estimatedCost)}
+          {formatCurrency(activity.estimatedCost, currency)}
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger

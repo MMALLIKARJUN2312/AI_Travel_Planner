@@ -29,7 +29,7 @@ scaffolded backend, delivered in 8 phases over one continuous session.
 | | URL |
 |---|---|
 | Frontend | https://ai-travel-planner-gamma-brown.vercel.app/ |
-| Backend health check | https:/ai-travel-planner-bvbt.onrender.com/health |
+| Backend health check | https://ai-travel-planner-bvbt.onrender.com/health |
 
 Not deployed by this session — see [`docs/deployment/README.md`](docs/deployment/README.md)
 for the full Vercel + Render + Atlas runbook. Deployment requires accounts

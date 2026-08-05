@@ -1,6 +1,6 @@
 # AI Travel Planner
 
-A multi-user, AI-powered trip planner. Give it a destination, a number of
+A multi-user, AI-powered trip planner. Give it a departure(origin) and destination locations, a number of
 days, a budget level, and some interests — it generates a complete
 day-by-day itinerary, a budget breakdown, hotel picks, and an AI risk &
 safety assessment, all editable afterward (add/remove/reorder/regenerate,
@@ -11,8 +11,7 @@ scaffolded backend, delivered in 8 phases over one continuous session.
 
 ## Contents
 
-- [Live deployment](#live-deployment)
-- [Video walkthrough](#video-walkthrough)
+- [Live deployment](https://ai-travel-planner-gamma-brown.vercel.app/)
 - [Tech stack](#tech-stack)
 - [Setup](#setup)
 - [Architecture](#architecture)
@@ -29,20 +28,14 @@ scaffolded backend, delivered in 8 phases over one continuous session.
 
 | | URL |
 |---|---|
-| Frontend | _add your Vercel URL here after deploying_ |
-| Backend health check | _add your Render URL + `/health` here_ |
+| Frontend | https://ai-travel-planner-gamma-brown.vercel.app/ |
+| Backend health check | https:/ai-travel-planner-bvbt.onrender.com/health |
 
 Not deployed by this session — see [`docs/deployment/README.md`](docs/deployment/README.md)
 for the full Vercel + Render + Atlas runbook. Deployment requires accounts
 this session doesn't have access to; everything needed to deploy in ~15
 minutes is prepared and verified (Dockerfiles were built and the full
 stack was run end-to-end locally via `docker compose`).
-
-## Video walkthrough
-
-_Add your 3–4 minute walkthrough link here before submitting._ Suggested
-to cover: overall flow, auth, AI generation, the custom risk-advisor
-feature, and one or two design decisions you'd defend.
 
 ## Tech stack
 

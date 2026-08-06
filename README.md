@@ -48,7 +48,7 @@ stack was run end-to-end locally via `docker compose`).
 | Backend | Node.js, Express 5, TypeScript | As specified |
 | Database | MongoDB (Atlas in production, in-memory for tests), Mongoose | As specified |
 | Auth | JWT (access + refresh), bcrypt, httpOnly cookies | See [Authentication & authorization](#authentication--authorization) |
-| AI | **Google Gemini** (`@google/genai`), `gemini-flash-latest` | The brief suggested OpenAI GPT-4.1; built against Gemini instead per an explicit decision made mid-project — see [Key design decisions](#key-design-decisions--trade-offs) |
+| AI | **Google Gemini** (`@google/genai`), `gemini-3.1-flash-lite` | The brief suggested OpenAI GPT-4.1; built against Gemini instead per an explicit decision made mid-project — see [Key design decisions](#key-design-decisions--trade-offs) |
 | Validation/security | Zod (both ends), Helmet, `express-rate-limit`, CORS | Backend never trusts frontend validation alone |
 | Testing | Jest, Supertest, `mongodb-memory-server`, React Testing Library | See [Testing](#testing) |
 | CI/CD | GitHub Actions, Docker, Render (backend), Vercel (frontend) | See [`docs/deployment`](docs/deployment/README.md) |
